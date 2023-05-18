@@ -35,18 +35,18 @@ max_tgt_length=20
 num_bins=1000
 patch_image_size=512
 
-for max_epoch in {10,}; do
+for max_epoch in 10; do # in { } can put different group of para 
   echo "max_epoch "${max_epoch}
-  for lr in {3e-5,}; do
+  for lr in 3e-5; do
     echo "lr "${lr}
-    for patch_image_size in {512,}; do
+    for patch_image_size in 512; do
       echo "patch_image_size "${patch_image_size}
 
       log_file=${log_dir}/${max_epoch}"_"${lr}"_"${patch_image_size}".log"
       save_path=${save_dir}/${max_epoch}"_"${lr}"_"${patch_image_size}
       mkdir -p $save_path
 
-      CUDA_VISIBLE_DEVICES=0,1,2,3 python3 -m torch.distributed.launch --nproc_per_node=4 --master_port=${MASTER_PORT} ../../train.py \
+      CUDA_VISIBLE_DEVICES=0 python3 -m torch.distributed.launch  --master_port=${MASTER_PORT} ../../train.py \
           $data \
           --selected-cols=${selected_cols} \
           --bpe-dir=${bpe_dir} \

@@ -1,0 +1,6 @@
+total_num_updates {40000,}
+warmup_updates {2000,}
+lr {1e-3,}
+total_num_updates {5000,}
+warmup_updates {0,}
+lr {1e-6,}

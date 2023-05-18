@@ -12,12 +12,12 @@ bpe_dir=../../utils/BPE
 user_dir=../../ofa_module
 
 data_dir=../../dataset/caption_data
-data=${data_dir}/caption_stage2_train.tsv,${data_dir}/caption_val.tsv
-restore_file=../../checkpoints/caption_stage1_best.pt
+data=${data_dir}/train2.tsv,${data_dir}/val.tsv
+restore_file=../../checkpoints/checkpoint_best.pt
 selected_cols=1,4,2
 
 task=caption
-arch=ofa_large
+arch=ofa_base
 criterion=scst_reward_criterion
 label_smoothing=0.1
 lr=1e-5
@@ -30,23 +30,23 @@ encoder_drop_path_rate=0.0
 decoder_drop_path_rate=0.0
 dropout=0.0
 attention_dropout=0.0
-max_src_length=80
-max_tgt_length=20
+max_src_length=1200
+max_tgt_length=1200
 num_bins=1000
 patch_image_size=480
 eval_cider_cached=${data_dir}/cider_cached_tokens/coco-valid-words.p
 scst_cider_cached=${data_dir}/cider_cached_tokens/coco-train-words.p
 
-for lr in {1e-5,}; do
+for lr in 1e-5; do
   echo "lr "${lr}
-  for max_epoch in {3,}; do
+  for max_epoch in 3; do
     echo "max_epoch "${max_epoch}
 
     log_file=${log_dir}/${lr}"_"${max_epoch}".log"
     save_path=${save_dir}/${lr}"_"${max_epoch}
     mkdir -p $save_path
 
-    CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 python3 -m torch.distributed.launch --nproc_per_node=8 --master_port=${MASTER_PORT} ../../train.py \
+    CUDA_VISIBLE_DEVICES=0,1 python3 -m torch.distributed.launch --nproc_per_node=2 --master_port=${MASTER_PORT} ../../train.py \
         $data \
         --selected-cols=${selected_cols} \
         --bpe-dir=${bpe_dir} \

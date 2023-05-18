@@ -8,11 +8,11 @@
 # To use the shuffled data (if exists), please uncomment the Line 24.
 
 # Number of GPUs per GPU worker
-GPUS_PER_NODE=8 
+GPUS_PER_NODE=1  # changed 4 to 1 for autodl--fishlife
 # Number of GPU workers, for single-worker training, please set to 1
-WORKER_CNT=4 
+WORKER_CNT=1 	# changed to 1 for autodl--fishlife
 # The ip address of the rank-0 worker, for single-worker training, please set to localhost
-export MASTER_ADDR=XX.XX.XX.XX
+export MASTER_ADDR=localhost
 # The port for communication
 export MASTER_PORT=8314
 # The rank of this worker, should be in {0, ..., WORKER_CNT-1}, for single-worker training, please set to 0

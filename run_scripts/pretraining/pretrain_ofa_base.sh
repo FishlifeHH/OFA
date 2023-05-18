@@ -9,11 +9,11 @@ export GPUS_PER_NODE=1
 bpe_dir=../../utils/BPE
 user_dir=../../ofa_module
 
-restore_file=../../checkpoints/ofa_base.pt
+restore_file=../../checkpoints/checkpoint_last.pt
 
 data_dir=../../dataset/pretrain_data
 neg_sample_dir=${data_dir}/negative_sample
-data=${data_dir}/vision_language_examples.tsv
+data=${data_dir}/vision_language.tsv
 text_data=${data_dir}/text_examples.tsv
 image_data=${data_dir}/image_examples.tsv
 detection_data=${data_dir}/detection_examples.tsv
@@ -38,20 +38,17 @@ encoder_drop_path_rate=0.1
 decoder_drop_path_rate=0.1
 dropout=0.1
 attention_dropout=0.0
-max_src_length=80
-max_tgt_length=30
+max_src_length=1200
+max_tgt_length=1200
 num_bins=1000
 patch_image_size=384
 sample_patch_num=196
-max_image_size=512
+max_image_size=768
 
 save_path=./checkpoints
 
-python3 -m torch.distributed.launch --nproc_per_node=${GPUS_PER_NODE} --master_port=${MASTER_PORT} ../../train.py \
+python3 -m torch.distributed.launch --master_port=${MASTER_PORT} ../../train.py \
   $data \
-  --text-data=${text_data} \
-  --image-data=${image_data} \
-  --detection-data=${detection_data} \
   --selected-cols=${selected_cols} \
   --text-selected-cols=${text_selected_cols} \
   --image-selected-cols=${image_selected_cols} \
@@ -85,9 +82,9 @@ python3 -m torch.distributed.launch --nproc_per_node=${GPUS_PER_NODE} --master_p
   --max-epoch=${max_epoch} --warmup-ratio=${warmup_ratio} \
   --log-format=simple --log-interval=10 \
   --fixed-validation-seed=7 \
-  --keep-last-epochs=15 \
+  --keep-last-epochs=1 \
   --save-interval=1 \
-  --save-interval-updates=6000 \
+  --save-interval-updates=20000 \
   --disable-validation \
   --max-src-length=${max_src_length} \
   --max-tgt-length=${max_tgt_length} \

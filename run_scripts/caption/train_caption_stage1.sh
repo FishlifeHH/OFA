@@ -12,16 +12,16 @@ bpe_dir=../../utils/BPE
 user_dir=../../ofa_module
 
 data_dir=../../dataset/caption_data
-data=${data_dir}/caption_stage1_train.tsv,${data_dir}/caption_val.tsv
-restore_file=../../checkpoints/ofa_large.pt
+data=${data_dir}/train2.tsv,${data_dir}/val.tsv
+restore_file=../../checkpoints/checkpoint_last.pt
 selected_cols=0,4,2
 
 task=caption
-arch=ofa_large
+arch=ofa_base
 criterion=adjust_label_smoothed_cross_entropy
 label_smoothing=0.1
 lr=1e-5
-max_epoch=5
+max_epoch=2
 warmup_ratio=0.06
 batch_size=8
 update_freq=4
@@ -30,25 +30,25 @@ encoder_drop_path_rate=0.1
 decoder_drop_path_rate=0.1
 dropout=0.1
 attention_dropout=0.0
-max_src_length=80
-max_tgt_length=20
+max_src_length=1200
+max_tgt_length=1200
 num_bins=1000
 patch_image_size=480
 eval_cider_cached=${data_dir}/cider_cached_tokens/coco-valid-words.p
 drop_worst_ratio=0.2
 
-for max_epoch in {2,}; do
+for max_epoch in 2; do
   echo "max_epoch "${max_epoch}
-  for warmup_ratio in {0.06,}; do
+  for warmup_ratio in 0.06; do
     echo "warmup_ratio "${warmup_ratio}
-    for drop_worst_after in {2500,}; do
+    for drop_worst_after in 2500; do
       echo "drop_worst_after "${drop_worst_after}
 
       log_file=${log_dir}/${max_epoch}"_"${warmup_ratio}"_"${drop_worst_after}".log"
       save_path=${save_dir}/${max_epoch}"_"${warmup_ratio}"_"${drop_worst_after}
       mkdir -p $save_path
 
-      CUDA_VISIBLE_DEVICES=0,1,2,3 python3 -m torch.distributed.launch --nproc_per_node=4 --master_port=${MASTER_PORT} ../../train.py \
+      CUDA_VISIBLE_DEVICES=0 python3 -m torch.distributed.launch --nproc_per_node=1 --master_port=${MASTER_PORT} ../../train.py \
           $data \
           --selected-cols=${selected_cols} \
           --bpe-dir=${bpe_dir} \
@@ -81,7 +81,7 @@ for max_epoch in {2,}; do
           --fixed-validation-seed=7 \
           --no-epoch-checkpoints --keep-best-checkpoints=1 \
           --save-interval=1 --validate-interval=1 \
-          --save-interval-updates=500 --validate-interval-updates=500 \
+          --save-interval-updates=20000 --validate-interval-updates=20000 \
           --eval-cider \
           --eval-cider-cached-tokens=${eval_cider_cached} \
           --eval-args='{"beam":5,"max_len_b":16,"no_repeat_ngram_size":3}' \
